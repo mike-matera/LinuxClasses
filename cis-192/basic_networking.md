@@ -17,14 +17,6 @@ Do you know how to decipher a manual page? [Here's how](../cis-191/deciphering_m
   * /etc/hosts
   * /etc/hostname
 
-Contents
-  - [1 Commands](#TOC_Commands)
-  - [1.1 Configuration](#TOC_Configuration)
-
-  - [2 Network Settings](#TOC_Network_Settings)
-  - [3 Setting your Hostname](#TOC_Setting_your_Hostname)
-  - [4 The Hosts File](#TOC_The_Hosts_File)
-
 ## Network Settings 
 
 The ifconfig command displays and alters networking parameters on Ethernet and Ethernet-like device in Linux. To determine the current configuration of Ethernet devices on your system run the command:
@@ -85,25 +77,18 @@ Ifconfig changes immediately take effect but do not survive a reboot. In order t
 # The loopback network interface
 auto lo
 iface lo inet loopback
+
 # The primary network interface
 auto ens160
-iface ens160 inet static
- 
- address 10.0.0.41
- 
-netmask 255.255.255.0
- 
-network 10.0.0.0
- 
-broadcast 10.0.0.255
- 
-gateway 10.0.0.1
- 
-dns-nameservers 10.0.0.1 8.8.8.8
- 
-dns-domain acme.com
- 
-dns-search acme.com
+iface ens160 inet static 
+  address 10.0.0.41
+  netmask 255.255.255.0
+  network 10.0.0.0
+  broadcast 10.0.0.255
+  gateway 10.0.0.1
+  dns-nameservers 10.0.0.1 8.8.8.8
+  dns-domain acme.com
+  dns-search acme.com
 ```
 
 Making changes to the file does not immediately change the network interfaces. The ifup and ifdown command are similar to ifconfig, but they configure your interface according to the settings in your interfaces file. So, when you want to change your IP address settings the procedure is:
@@ -138,10 +123,9 @@ The change isn't permanent. If you want to make the change permanent you must pu
 Before there was such a thing as DNS every hostname of every computer on the entire Internet was listed in a file /etc/hosts. A copy of that file was placed on every computer and someone was responsible for keeping it maintained. That system has obvious problems with scale but instead of being replaced, DNS just adds a layer on top of it. Your /etc/hosts file is still a piece configuration. Even Microsoft Windows has a hosts file it's located in C:\Windows\System32\drivers\etc\hosts. Here's an example of a hosts file from your VMs:
 
 ```
-127.0.0.1 
-localhost
-127.0.1.1
-ubuntu-server
+127.0.0.1 localhost
+127.0.1.1 ubuntu-server
+
 # The following lines are desirable for IPv6 capable hosts
 ::1   ip6-localhost ip6-loopback
 fe00::0 ip6-localnet
@@ -151,34 +135,95 @@ ff02::2 ip6-allrouters
 ```
 
 The hosts file is where the special name "localhost" gets its meaning. Also, by adding the name of your computer to the hosts file Linux ensures you'll be able to refer to your computer by name even if it doesn't have a DNS entry. The hosts file takes precedence over DNS so if you place a host name in there Linux will use it without question. Be careful when you do that because it can cause some very hard to find problems.
-ARPIn order to function all hosts need an ARP table and a routing table. This section introduces the commands in Linux that can view and alter those tables. You can view the ARP table with the following command.
-  arp -n
 
-The "-n" argument tells the arp command not to lookup hostnames (this makes it faster, especially when you have network trouble). In rare occasions you may need to add or delete entries in the ARP table. You can do that with the following commands:
-  Delete an entry:
-   arp -d <hostname>
-  Create an entry:
-   arp -s <hostname> <MAC Address>
+## ARP
 
-RoutingYou will need to be root to run the latter two commands. I strongly suggest avoiding them unless you're sure of what you're doing. Altering the routing table is often required when you want to manually establish a Linux computer on the network. You can display the routing table with either of the two commands:
-  ip route  ip -6 route
+In order to function all hosts need an ARP table and a routing table. This section introduces the commands in Linux that can view and alter those tables. You can view the ARP table with the following command.
+
+```
+arp -n
+```
+
+The `-n` argument tells the arp command not to lookup hostnames (this makes it faster, especially when you have network trouble). In rare occasions you may need to add or delete entries in the ARP table. You can do that with the following commands:
+
+Delete an entry:
+```
+arp -d <hostname>
+```
+
+Create an entry:
+```
+arp -s <hostname> <MAC Address>
+```
+
+## Routing
+
+You will need to be root to run the latter two commands. I strongly suggest avoiding them unless you're sure of what you're doing. Altering the routing table is often required when you want to manually establish a Linux computer on the network. You can display the routing table with either of the two commands:
+
+```
+ip route  ip -6 route
+```
 
 You can use those commands to determine what (if any) default gateway you have set. If you need to establish a default gateway use the following commands:
-  ip route add default via <ipv4-address>
-  ip -6 route add default via <ipv6-address> dev <device>
-  examples:
-   ip route add default via 172.20.0.1
-   ip -6 route add default via fe80::f831:1 dev ens160
+
+```
+ip route add default via <ipv4-address>
+ip -6 route add default via <ipv6-address> dev <device>
+```
+
+examples:
+
+```
+ip route add default via 172.20.0.1
+ip -6 route add default via fe80::f831:1 dev ens160
+```
 
 The reason that the IPv6 version needs the additional "dev" argument is that in IPv6 routers are most often reached through link-local addresses. Linux would not know which Ethernet device to send the packet to without you telling it.You can also add static routes but that's beyond the scope of this article.
-DNSNameservers are configured using the file [/etc/resolv.conf](http://man7.org/linux/man-pages/man5/resolv.conf.5.html). The file is almost as old as Unix and has a very simple format. Here's an example:
- nameserver 172.30.5.101 nameserver 172.30.5.102 search cis.cabrillo.edu
+
+## DNS
+
+Nameservers are configured using the file [/etc/resolv.conf](http://man7.org/linux/man-pages/man5/resolv.conf.5.html). The file is almost as old as Unix and has a very simple format. Here's an example:
+
+```
+nameserver 172.30.5.101 
+nameserver 172.30.5.102 
+search cis.cabrillo.edu
+```
+
 The file tells Linux where to find nameservers and what domain to search when a user enters a hostname without a domain name (e.g. opus instead of opus.cis.cabrillo.edu). On Ubuntu the file also comes with this warning:
+
+```
 # DO NOT EDIT THIS FILE BY HAND
+```
+
 On Ubuntu this file is automatically written when you run the 'ifup' and 'ifdown' commands. Also, if you're using Ubuntu Desktop, there's an added level of complexity the resolvconf program. That program lets you control things from the desktop GUIs. Where's the fun in that?
-Network StatusWhen debugging it's important to know what network connections are currently being maintained by your computer. This can help you spot configuration problems quickly and painlessly. The netstat command is a Swiss Army knife command that will tell you almost anything you want to know about Linux's network. We won't use all of its functionality in class but it's important to know these formulations of the command:
-Shows the current TCP connections:netstat -ntp
-Shows what servers are listening for INBOUND connections on TCP (remember this!):netstat -lntp
-Shows what programs have UDP sockets open:netstat -nup
-Shows what programs have listening UDP sockets open:netstat -lnup
+
+## Network Status
+
+When debugging it's important to know what network connections are currently being maintained by your computer. This can help you spot configuration problems quickly and painlessly. The netstat command is a Swiss Army knife command that will tell you almost anything you want to know about Linux's network. We won't use all of its functionality in class but it's important to know these formulations of the command:
+
+Shows the current TCP connections:
+
+```
+netstat -ntp
+```
+
+Shows what servers are listening for INBOUND connections on TCP (remember this!):
+
+```
+netstat -lntp
+```
+
+Shows what programs have UDP sockets open:
+
+```
+netstat -nup
+```
+
+Shows what programs have listening UDP sockets open:
+
+```
+netstat -lnup
+```
+
 I expect you to have these commands committed to memory! A good admin should know them by heart.

@@ -24,7 +24,7 @@ $ ping www.google.com
 $ ping6 www.google.com
 ```
 
-When you run those commands you should see packets going by. If not, be sure you're running tcpdump properly. \
+When you run those commands you should see packets going by. If not, be sure you're running tcpdump properly.
 
 ## Capture and Retrieve Packets 
 

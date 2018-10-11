@@ -12,17 +12,6 @@ The lecture slides are [here](https://docs.google.com/presentation/d/11TIhoHajEe
   * ~/.ssh/config
   * ~/.ssh/authorized_keys
 
-Contents
-  - [1 Commands](#TOC_Commands)
-  - [1.1 Configuration](#TOC_Configuration)
-
-  - [2 Introduction](#TOC_Introduction)
-  - [3 Going Passwordless](#TOC_Going_Passwordless)
-  - [3.1 Installing Your Public Key](#TOC_Installing_Your_Public_Key)
-  - [3.2 SSH Configuration](#TOC_SSH_Configuration)
-
-  - [4 Packet Debugging with Tcpdump ](#TOC_Packet_Debugging_with_Tcpdump_)
-
 ## Introduction 
 
 There are two things a good admin does well: Move from host to host and find problems. This lesson will show you the way the pros do it using SSH and Wireshark and friends. In the last class you learned how to use SSH to login and move files back and forth. You probably typed your password a lot of times. No more.
@@ -30,8 +19,6 @@ There are two things a good admin does well: Move from host to host and find pro
 ## Going Passwordless 
 
 SSH can use cryptographic keys to verify your identity. Run the following command on Opus to generate a key pair:
-
-```
 
 ```
 $ ssh-keygen -t rsa -b 4096
@@ -70,9 +57,8 @@ The *.pub is your public key. You will copy that key to machines where you want 
 
 SSH comes with a very convenient command to move your public key onto a machine.
 
-```
- 
-$ssh-copy-id user@machine
+``` 
+$ ssh-copy-id user@machine
 ```
 
 Use this command to copy your public key to your router. Once that's complete you should be able to login with no password from Opus:
